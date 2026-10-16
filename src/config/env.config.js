@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { ENVIRONMENTS } from "../constants/index.js";
 
 dotenv.config();
 
@@ -13,11 +14,26 @@ if (missing.length > 0) {
     );
 }
 
-const config = Object.freeze ({
-    port: Number(process.env.PORT),
+const port = Number(process.env.PORT);
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error(
+        `Configuración inválida: PORT debe ser un entero entre 1 y 65535 (recibido: "${process.env.PORT}").`
+    );
+}
+
+const allowedEnvironments = Object.values(ENVIRONMENTS);
+if (!allowedEnvironments.includes(process.env.NODE_ENV)) {
+    throw new Error(
+        `Configuración inválida: NODE_ENV debe ser uno de ${allowedEnvironments.join(", ")} `+
+        `(recibido: "${process.env.NODE_ENV}").`
+    );
+}
+
+const config = Object.freeze({
+    port,
     mongoUri: process.env.MONGODB_URI,
     nodeEnv: process.env.NODE_ENV, 
-    isDevelopment: process.env.NODE_ENV=== "development"
+    isDevelopment: process.env.NODE_ENV === ENVIRONMENTS.DEVELOPMENT
 });
 
-export default config
+export default config;

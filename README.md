@@ -1,8 +1,6 @@
 # ShipNow API — Pre-entrega Módulo 2: Mocking y carga de datos
 
-API de logística (Node.js, Express, MongoDB/Mongoose) con arquitectura por capas
-**Controller → Service → Repository** y un módulo de mocking que genera datos de
-prueba (usuarios, repartidores, pedidos y entregas) con `@faker-js/faker`.
+API de logística (Node.js, Express, MongoDB/Mongoose) con arquitectura por capas **Controller → Service → Repository** y un módulo de mocking que genera datos de prueba (usuarios, repartidores, pedidos y entregas) con `@faker-js/faker`.
 
 ## Requisitos
 
@@ -19,12 +17,44 @@ cp .env.example .env
 Completa el `.env` con tus valores (`PORT`, `MONGODB_URI`, `NODE_ENV`).
 Si falta alguna variable, la app no arranca y avisa cuál.
 
+## Variables de entorno
+
+El archivo `.env.example` lista las variables necesarias, sin valores.
+Cópialo a `.env` y complétalo:
+
+| Variable | Descripción | Validación |
+|---|---|---|
+| `PORT` | Puerto del servidor | Entero entre 1 y 65535 |
+| `NODE_ENV` | Entorno de ejecución | `development`, `production` o `test` |
+| `MONGODB_URI` | URI de conexión a MongoDB | Obligatoria |
+
+Ejemplo de valores: `PORT=8080`, `NODE_ENV=development`,
+`MONGODB_URI=mongodb://localhost:27017/shipnow`.
+
+Las variables se validan al arrancar (`src/config/env.config.js`). Si falta alguna, `PORT` no es numérico o `NODE_ENV` tiene un valor no permitido, la app lanza un error descriptivo y no inicia. Es el único archivo que lee `process.env`.
+
 ## Ejecución
 
 ```bash
 npm run dev     # desarrollo (nodemon)
 npm start       # producción
 ```
+
+## Reglas de la API
+
+- **Capas:** Controller → Service → Repository. Solo los repositories y los modelos conocen Mongoose.
+- **Campos controlados por el sistema:** el body de las peticiones no puede definir `role` (los usuarios se crean siempre con rol `USER`) ni `status` (el estado de un producto se deriva del stock: `AVAILABLE` si hay stock, `OUT_OF_STOCK` si no). Los campos no permitidos se ignoran.
+- **Contraseñas:** se guardan hasheadas con bcrypt y los endpoints de usuarios nunca las devuelven. Los datos simulados de `/api/mocks` sí incluyen la contraseña de prueba (`Mock1234`), porque no se guardan en la base.
+- **Constantes:** roles, estados, prioridades y los valores `success`/`error` de las respuestas están centralizados en `src/constants/index.js`.
+- **Formato de respuesta:** `{ "status": "success" | "error", "message": "...", "payload": ... }`. Los endpoints de `/api/mocks` devuelven los datos tal cual, sin envoltorio.
+
+## Endpoints de la API base
+
+| Recurso | Rutas |
+|---|---|
+| Productos | `GET/POST /api/products`, `GET/PUT/DELETE /api/products/:id` |
+| Usuarios | `GET/POST /api/users`, `GET/PUT/DELETE /api/users/:id` |
+| Health | `GET /api/health` |
 
 ## Estructura del módulo de mocking
 
@@ -76,8 +106,8 @@ Respuestas de ejemplo:
 
 - **Usuarios:** `name`, `email` (único, dominio `test.com`), `password`, `role`.
   Roles tomados de `USER_ROLES`.
-- **Repartidores:** usuarios con rol `COURIER`. Se generan aproximadamente
-  `qty / 3` repartidores por cada `qty` pedidos.
+- **Repartidores:** usuarios con rol `COURIER`. En `seed` y en los `GET` de pedidos y entregas se generan `ceil(qty / 3)` (mínimo 1). En
+  `GET /api/mocks/couriers?qty=N` se devuelven exactamente `N`.
 - **Pedidos:** `customer` (referencia a un usuario con rol `USER`), `items`,
   `deliveryAddress`, `total` (suma de los items), `status` (`ORDER_STATUS`),
   `priority` (`ORDER_PRIORITY`).

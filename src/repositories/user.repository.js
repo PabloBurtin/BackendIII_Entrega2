@@ -26,7 +26,7 @@ export class UserRepository {
     }
 
     static async update(id, data) {
-        return UserModel.findByIdAndUpdate(id, data, { new: true, runValidators: true })
+        return UserModel.findByIdAndUpdate(id, data, { returnDocument: "after", runValidators: true })
             .select(PROJECTION)
             .lean();
     }

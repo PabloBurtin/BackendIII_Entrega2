@@ -46,3 +46,14 @@ export const MOCKING_PARAMETERS = Object.freeze({
     DEFAULT_PASSWORD: "Mock1234",
     EMAIL_DOMAIN: "test.com"
 });
+
+export const RESPONSE_STATUS = Object.freeze({
+    SUCCESS: "success",
+    ERROR: "error"
+});
+
+export const ENVIRONMENTS = Object.freeze({
+    DEVELOPMENT: "development",
+    PRODUCTION: "production",
+    TEST: "test"
+});

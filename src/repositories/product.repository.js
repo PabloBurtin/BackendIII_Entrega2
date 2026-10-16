@@ -13,11 +13,12 @@ export class ProductRepository {
 
     static async create(data) {
         const product = await ProductModel.create(data);
-        return product.toObject();
+        const { __v, ...safeProduct } = product.toObject();
+        return safeProduct;
     }
 
     static async update(id, data) {
-        return ProductModel.findByIdAndUpdate(id, data, { new: true, runValidators: true })
+        return ProductModel.findByIdAndUpdate(id, data, { returnDocument: "after", runValidators: true })
             .select(PROJECTION)
             .lean();
     }

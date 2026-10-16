@@ -1,5 +1,6 @@
 import { ProductService } from "../services/product.service.js";
 import { handleError } from "../utils/error.util.js";
+import { RESPONSE_STATUS } from "../constants/index.js";
 
 
 export class ProductController {
@@ -7,7 +8,7 @@ export class ProductController {
         try {
             const products = await ProductService.getAll()
             return res.status(200).json({ 
-                status: "success", 
+                status: RESPONSE_STATUS.SUCCESS, 
                 message: "Productos obtenidos exitosamente",
                 payload: products })
         } catch (error) {
@@ -19,7 +20,7 @@ export class ProductController {
         try {
             const product = await ProductService.getById(req.params.id)
             return res.status(200).json({
-                status: "success",
+                status: RESPONSE_STATUS.SUCCESS,
                 message: "Producto encontrado exitosamente",
                 payload: product
             })
@@ -32,7 +33,7 @@ export class ProductController {
         try {
             const product = await ProductService.create(req.body)
             return res.status(201).json({
-                status: "success",
+                status: RESPONSE_STATUS.SUCCESS,
                 message: "Producto creado exitosamente",
                 payload: product
             })
@@ -45,7 +46,7 @@ export class ProductController {
         try {
             const product = await ProductService.update(req.params.id, req.body)
             return res.status(200).json({
-                status: "success",
+                status: RESPONSE_STATUS.SUCCESS,
                 message: "Producto actualizado correctamente",
                 payload: product
             })
@@ -58,7 +59,7 @@ export class ProductController {
         try {
             const product = await ProductService.delete(req.params.id)
         return res.status(200).json({
-            status: "success",
+            status: RESPONSE_STATUS.SUCCESS,
             message: "Producto borrado correctamente",
             payload: product
         })
